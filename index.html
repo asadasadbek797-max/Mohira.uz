@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mohira.uz — ayollar liboslari</title>
+<meta name="description" content="Mohira.uz — Universal doʻkon, 85-doʻkon. Ayollar uchun tayyor liboslar.">
+<meta property="og:title" content="Mohira.uz — ayollar liboslari">
+<meta property="og:description" content="Universal doʻkon, 85-doʻkon. Ayollar uchun tayyor liboslar.">
+<meta name="theme-color" content="#c2185b">
+<style>
+:root{--bg:#fbf7f4;--card:#fff;--ink:#2a2226;--mute:#7b6f75;--acc:#c2185b;--acc2:#fde4ec;--line:#eadfe3}
+@media (prefers-color-scheme: dark){:root{--bg:#171216;--card:#231b21;--ink:#f3e9ee;--mute:#a99ba2;--acc:#f06292;--acc2:#3a2230;--line:#3a2d35}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
+header{padding:calc(env(safe-area-inset-top,0px) + 22px) 16px 10px;text-align:center}
+h1{margin:0;font-size:1.7rem}
+header p{margin:4px 0 0;color:var(--mute);font-size:.95rem}
+.top{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 15px;border-radius:999px;font-size:.92rem;text-decoration:none;cursor:pointer;font-family:inherit}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:12px;max-width:980px;margin:0 auto}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--card);border-radius:16px;overflow:hidden;border:1px solid var(--line);cursor:pointer}
+.im{aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;font-size:3rem;background-size:cover;background-position:center}
+.info{padding:10px 12px 12px}
+.nm{font-size:.95rem;font-weight:600;line-height:1.25}
+.pr{color:var(--acc);font-weight:700;margin-top:4px}
+.sz{color:var(--mute);font-size:.8rem;margin-top:4px}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:13px;font-size:1rem;font-weight:600;cursor:pointer;background:var(--acc);color:#fff;margin-top:8px;text-align:center;text-decoration:none;font-family:inherit}
+.btn.alt{background:var(--acc2);color:var(--acc)}
+#back{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:5}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:92%;overflow:auto;background:var(--bg);border-radius:22px 22px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 16px);display:none;z-index:6;max-width:560px;margin:0 auto}
+body.open #back,body.open #sheet{display:block}
+#sheet .im{border-radius:14px;aspect-ratio:4/3}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.chip{min-width:48px;text-align:center;padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-weight:600}
+.chip.on{border-color:var(--acc);background:var(--acc2);color:var(--acc)}
+label{display:block;font-size:.85rem;color:var(--mute);margin-top:10px}
+input{width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:1rem;margin-top:4px;font-family:inherit}
+#err{font-size:.9rem;min-height:1.2em;margin-top:6px;color:#d32f2f}
+footer{text-align:center;color:var(--mute);font-size:.85rem;padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 28px)}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="sn"></h1>
+  <p id="pl"></p>
+  <div class="top"><a class="pill" id="call">📞 Qoʻngʻiroq</a><a class="pill" id="tg">✈️ Telegram</a><button class="pill" id="share">🔗 Ulashish</button></div>
+</header>
+<main class="grid" id="grid"></main>
+<footer id="ft"></footer>
+<div id="back"></div>
+<div id="sheet"></div>
+<script>
+/* ===== SOZLAMALAR ===== */
+var CFG={name:"Mohira.uz",place:"Universal doʻkon, 85-doʻkon",phone:"+998770483000",telegram:"ASVEX01",whatsapp:""};
+/* ===== KIYIMLAR: img ga rasm fayli nomi yoziladi (masalan "rasm1.jpg"), boʻsh boʻlsa rangli namuna ===== */
+var P=[
+ {id:1,t:"Gulli yozgi koʻylak",p:189000,s:["S","M","L","XL"],c:["#f4b6c2","#e58aa3"],img:""},
+ {id:2,t:"Klassik oq koʻylak",p:159000,s:["M","L","XL"],c:["#e9e4f5","#bfb3e0"],img:""},
+ {id:3,t:"Kechki uzun libos",p:329000,s:["S","M","L"],c:["#b7d7e8","#7aa7c7"],img:""},
+ {id:4,t:"Kundalik yubka",p:119000,s:["S","M","L","XL","XXL"],c:["#f7d9a8","#e8b36a"],img:""}
+];
+var $=function(i){return document.getElementById(i)},cur=null,size="";
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function money(n){return Number(n).toLocaleString('ru-RU')+" soʻm"}
+function bg(p){return p.img?"background-image:url('"+esc(p.img)+"')":"background:linear-gradient(135deg,"+p.c.join(",")+")"}
+var pn=CFG.phone.replace(/(\+998)(\d{2})(\d{3})(\d{2})(\d{2})/,'$1 $2 $3 $4 $5');
+$('sn').textContent=CFG.name;$('pl').textContent=CFG.place+" · Ayollar uchun tayyor liboslar";
+$('call').href='tel:'+CFG.phone;
+$('tg').href='https://t.me/'+CFG.telegram;$('tg').target='_blank';$('tg').rel='noopener';
+$('ft').textContent=CFG.name+' · '+CFG.place+' · '+pn;
+$('grid').innerHTML=P.map(function(p){
+ return '<div class="card" data-id="'+p.id+'"><div class="im" style="'+bg(p)+'">'+(p.img?'':'👗')+'</div><div class="info"><div class="nm">'+esc(p.t)+'</div><div class="pr">'+money(p.p)+'</div><div class="sz">Razmer: '+esc(p.s.join(', '))+'</div></div></div>';
+}).join('');
+$('grid').addEventListener('click',function(e){var c=e.target.closest('.card');if(c)openSheet(+c.dataset.id)});
+$('back').addEventListener('click',close);
+function close(){document.body.classList.remove('open')}
+function openSheet(id){
+ cur=P.filter(function(p){return p.id===id})[0];size="";
+ $('sheet').innerHTML='<div class="im" style="'+bg(cur)+'">'+(cur.img?'':'👗')+'</div>'+
+ '<h2 style="margin:12px 0 2px">'+esc(cur.t)+'</h2><div class="pr" style="font-size:1.2rem">'+money(cur.p)+'</div>'+
+ '<label>Razmerni tanlang</label><div class="chips">'+cur.s.map(function(s){return '<div class="chip" data-s="'+esc(s)+'">'+esc(s)+'</div>'}).join('')+'</div>'+
+ '<label>Ismingiz</label><input id="fn" autocomplete="name" placeholder="Ism">'+
+ '<label>Telefon raqamingiz</label><input id="fp" type="tel" autocomplete="tel" placeholder="+998 __ ___ __ __">'+
+ '<div id="err"></div>'+
+ '<button class="btn" data-w="tg">✈️ Telegram orqali buyurtma</button>'+
+ '<button class="btn alt" data-w="sms">💬 SMS orqali buyurtma</button>'+
+ (CFG.whatsapp?'<button class="btn alt" data-w="wa">WhatsApp orqali buyurtma</button>':'')+
+ '<button class="btn alt" data-w="copy">📋 Matnni nusxalash</button>'+
+ '<button class="btn alt" data-w="x">Yopish</button>';
+ document.body.classList.add('open');
+}
+$('sheet').addEventListener('click',function(e){
+ var ch=e.target.closest('.chip');
+ if(ch){size=ch.dataset.s;[].forEach.call(document.querySelectorAll('.chip'),function(c){c.classList.toggle('on',c===ch)});return}
+ var b=e.target.closest('[data-w]');if(!b)return;
+ var w=b.dataset.w;if(w==='x')return close();
+ var n=$('fn').value.trim(),ph=$('fp').value.trim();
+ $('err').style.color='#d32f2f';
+ if(!size)return $('err').textContent='Iltimos, razmerni tanlang';
+ if(!n||ph.length<7)return $('err').textContent='Ism va telefon raqamingizni kiriting';
+ $('err').textContent='';
+ var t='Assalomu alaykum! Yangi buyurtma ('+CFG.name+'):\n👗 '+cur.t+'\n📏 Razmer: '+size+'\n💰 Narxi: '+money(cur.p)+'\n👤 Ism: '+n+'\n📞 Telefon: '+ph+'\n🕒 '+new Date().toLocaleString('ru-RU'),q=encodeURIComponent(t);
+ if(w==='copy'){try{navigator.clipboard.writeText(t);$('err').style.color='#2e7d32';$('err').textContent='Nusxalandi — doʻkonga yuboring'}catch(x){$('err').textContent='Nusxalab boʻlmadi'}return}
+ if(w==='tg')window.open('https://t.me/'+CFG.telegram+'?text='+q,'_blank');
+ else if(w==='wa')window.open('https://wa.me/'+CFG.whatsapp.replace(/\D/g,'')+'?text='+q,'_blank');
+ else location.href='sms:'+CFG.phone+'?&body='+q;
+});
+$('share').addEventListener('click',function(){
+ if(!/^https?:$/.test(location.protocol)){$('share').textContent='Internetga joylangach ishlaydi';return}
+ var d={title:CFG.name,text:CFG.name+' — ayollar liboslari. '+CFG.place,url:location.href};
+ if(navigator.share){try{navigator.share(d).catch(function(){})}catch(x){}}
+ else{try{navigator.clipboard.writeText(location.href);$('share').textContent='✅ Havola nusxalandi'}catch(x){}}
+});
+</script>
+</body>
+</html>
